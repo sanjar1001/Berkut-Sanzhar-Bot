@@ -1,0 +1,14 @@
+spring:
+  liquibase:
+    change-log: classpath:/db/changelog/change-master.xml
+  datasource:
+    url: jdbc:postgresql://localhost:5432/data
+    username: admin
+    password: admin
+
+
+  logging:
+    level:
+      org:
+        springframework:
+          security=DEBUG:
