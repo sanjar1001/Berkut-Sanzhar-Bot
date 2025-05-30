@@ -9,7 +9,6 @@ CREATE TABLE users (
     telegram_token varchar(100) unique not null ,
     chat_id varchar(100) not null
 
-
 );
 
 
