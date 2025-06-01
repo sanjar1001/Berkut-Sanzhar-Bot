@@ -4,6 +4,7 @@ import com.example.berkutsanzharbot.entity.Message;
 import com.example.berkutsanzharbot.entity.User;
 import com.example.berkutsanzharbot.entity.dto.MessageAllDto;
 import com.example.berkutsanzharbot.entity.dto.MessageDto;
+import com.example.berkutsanzharbot.exception.NotFoundException;
 import com.example.berkutsanzharbot.map.Mapper;
 import com.example.berkutsanzharbot.repository.MessageRepository;
 import com.example.berkutsanzharbot.repository.UserRepository;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -23,6 +25,7 @@ import java.util.Optional;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
+@RestControllerAdvice
 public class TelegramServiceImpl implements TelegramService {
 
     private final UserRepository userRepository;
@@ -41,7 +44,7 @@ public class TelegramServiceImpl implements TelegramService {
 
             return ResponseEntity.ok(savedUser);
         }
-        return ResponseEntity.notFound().build();
+        throw new RuntimeException("Раньше чат был привязан");
     }
 
     //Сохраняем входящее сообщение от Telegram
@@ -49,7 +52,7 @@ public class TelegramServiceImpl implements TelegramService {
 
         Optional<User> userByChatId = userRepository.findByChatId(chatId);
         if (userByChatId.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("ChatId: Пустой невозможно сохранить");
         }
         User user = userByChatId.get();
 
@@ -69,12 +72,12 @@ public class TelegramServiceImpl implements TelegramService {
 
         Optional<User> user = userRepository.findByTelegramToken(messageDto.getToken());
         if (user.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("Что бы отправить сообщение, напишите токен");
         }
 
         String chatId = user.get().getChatId();
         if (chatId == null) {
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("ChatId: Пустой невозможно отправить");
         }
         SendMessage sendMessage = new SendMessage(chatId, messageDto.getText());
         try {
@@ -98,11 +101,11 @@ public class TelegramServiceImpl implements TelegramService {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("Перед тем авторизуйтесь");
         }
         Optional<User> user = userRepository.findByUsername(auth.getName());
         if (user.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("Пользователь  не найдет");
         }
         List<Message> messages = messageRepository.findAllByUserId(user.get().getId());
 
