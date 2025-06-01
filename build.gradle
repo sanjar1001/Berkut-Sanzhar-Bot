@@ -32,6 +32,8 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     implementation("org.telegram:telegrambots:6.9.7.1")
     implementation 'org.mindrot:jbcrypt:0.4'
     implementation("org.telegram:telegrambots-client:8.3.0")
