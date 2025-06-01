@@ -52,7 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/login",
                                 "/registration").permitAll()
-                        .anyRequest().authenticated()  // все остальные эндпойнты требуют авторизации
+                        .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
                 .build();

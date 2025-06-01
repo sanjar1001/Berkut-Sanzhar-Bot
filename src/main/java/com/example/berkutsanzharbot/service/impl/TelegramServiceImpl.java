@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,21 +27,24 @@ public class TelegramServiceImpl implements TelegramService {
 
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
-    private final TelegramClient telegramClient = new OkHttpTelegramClient(
-            "7651372603:AAHdclFmWSHgmIUMYLY5tjZ8kbtWgFEV7ec");
+    private final TelegramClient telegramClient = new OkHttpTelegramClient("7651372603:AAHdclFmWSHgmIUMYLY5tjZ8kbtWgFEV7ec");
     private final Mapper mapper;
 
+    // Сохраняем chatId пользователю по его Telegram токену
     public ResponseEntity<User> saveChatId(String chatId, String text) {
         Optional<User> userByToken = userRepository.findByTelegramToken(text);
-            if (userByToken.isPresent()) {
-                User user = userByToken.get();
-                user.setChatId(chatId);
-                User savedUser = userRepository.save(user);
-                return ResponseEntity.ok(savedUser);
-            }
+
+        if (userByToken.isPresent()) {
+            User user = userByToken.get();
+            user.setChatId(chatId);
+            User savedUser = userRepository.save(user);
+
+            return ResponseEntity.ok(savedUser);
+        }
         return ResponseEntity.notFound().build();
     }
 
+    //Сохраняем входящее сообщение от Telegram
     public ResponseEntity<Void> saveMessage(String chatId, LocalDateTime now, String text) {
 
         Optional<User> userByChatId = userRepository.findByChatId(chatId);
@@ -60,7 +64,7 @@ public class TelegramServiceImpl implements TelegramService {
 
     }
 
-    @Override
+    //Отправляем сообщение по его выданному Токену
     public ResponseEntity<?> sendMessage(MessageDto messageDto) {
 
         Optional<User> user = userRepository.findByTelegramToken(messageDto.getToken());
@@ -69,7 +73,7 @@ public class TelegramServiceImpl implements TelegramService {
         }
 
         String chatId = user.get().getChatId();
-        if (chatId  == null) {
+        if (chatId == null) {
             return ResponseEntity.notFound().build();
         }
         SendMessage sendMessage = new SendMessage(chatId, messageDto.getText());
@@ -88,11 +92,12 @@ public class TelegramServiceImpl implements TelegramService {
         return ResponseEntity.ok("Сообщение отправлено");
     }
 
-    @Override
+    // Получаем текущего авторизованного пользователя
+    // Возвращаем список его сообщений в виде DTO
     public ResponseEntity<?> findAllMessage() {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null){
+        if (auth == null) {
             return ResponseEntity.notFound().build();
         }
         Optional<User> user = userRepository.findByUsername(auth.getName());

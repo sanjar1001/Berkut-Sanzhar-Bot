@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageAllDto {
-
     public String text;
     public LocalDateTime createdAt;
 

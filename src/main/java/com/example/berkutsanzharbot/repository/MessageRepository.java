@@ -2,9 +2,9 @@ package com.example.berkutsanzharbot.repository;
 
 
 import com.example.berkutsanzharbot.entity.Message;
-import com.example.berkutsanzharbot.entity.dto.MessageAllDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 @Repository

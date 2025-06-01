@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 public interface TelegramService {
 
-    ResponseEntity<User> saveChatId(String chatId,String text);
+    ResponseEntity<User> saveChatId(String chatId, String text);
 
     ResponseEntity<Void> saveMessage(String chatId, LocalDateTime now, String text);
 
